@@ -24,8 +24,14 @@ from PIL import Image
 import numpy as np
 import subprocess
 import os
+import sys
 
-output_width = 21  # Width of output gif, measured in sussy crewmates
+if len(sys.argv) != 3:
+    print(len(sys.argv))
+    print("./img_sussifier INPUT WIDTH")
+    sys.exit(1)
+
+output_width = int(sys.argv[2])  # Width of output gif, measured in sussy crewmates
 twerk_frame_count = 6  # 0.png to 5.png
 
 # Load twerk frames 🥵
@@ -40,7 +46,7 @@ for i in range(6):
             "Probably you renamed the twerk_imgs folder or forgot to set twerk_frame_count. baka"
         )
         print(e)
-        exit()
+        sys.exit(1)
     twerk_frames.append(img)
     twerk_frames_data.append(np.array(img))
 
@@ -48,7 +54,7 @@ for i in range(6):
 twerk_width, twerk_height = twerk_frames[0].size
 
 # Get image to sussify!
-input_image = Image.open("input.png").convert("RGB")
+input_image = Image.open(sys.argv[1]).convert("RGB")
 input_width, input_height = input_image.size
 
 # Height of output gif (in crewmates)
@@ -96,18 +102,32 @@ for frame_number in range(twerk_frame_count):
 
             # Slap said frame onto the background
             background.paste(sussified_frame, (x * twerk_width, y * twerk_height))
+
     background.save(f"sussified_{frame_number}.png")
 
 print("Converting sussy frames to sussy gif")
 # Convert sussied frames to gif. PIL has a built-in method to save gifs but
 # it has dithering which looks sus, so we use ffmpeg with dither=none
 subprocess.call(
-    './ffmpeg -f image2 -i sussified_%d.png -filter_complex "[0:v] scale=sws_dither=none:,split [a][b];[a] palettegen=max_colors=255:stats_mode=single [p];[b][p] paletteuse=dither=none" -r 20 -y -hide_banner -loglevel error sussified.gif'
+    [
+        "ffmpeg",
+        "-f",
+        "image2",
+        "-i",
+        "sussified_%d.png",
+        "-filter_complex",
+        "[0:v] scale=sws_dither=none:,split [a][b];[a] palettegen=max_colors=255:stats_mode=single [p];[b][p] paletteuse=dither=none",
+        "-r",
+        "20",
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "sussified.gif",
+    ]
 )
 
 # Remove temp files
 print("Ejecting temp files from folder")
 for frame_number in range(twerk_frame_count):
     os.remove(f"sussified_{frame_number}.png")
-
-# lamkas a cute
