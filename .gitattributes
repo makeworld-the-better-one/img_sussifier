@@ -1,0 +1,2 @@
+# Upstream used CRLF everywhere
+*.py text eol=crlf
