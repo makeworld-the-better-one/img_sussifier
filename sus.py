@@ -26,10 +26,13 @@ import subprocess
 import os
 import sys
 
-if len(sys.argv) != 3:
+if len(sys.argv) != 3 and len(sys.argv) != 4:
     print(len(sys.argv))
-    print("./img_sussifier INPUT WIDTH")
+    print("./img_sussifier INPUT WIDTH [video]")
     sys.exit(1)
+
+# Either GIF or MP4 output
+format_gif = not (len(sys.argv) == 4 and sys.argv[3] == "video")
 
 output_width = int(sys.argv[2])  # Width of output gif, measured in sussy crewmates
 twerk_frame_count = 6  # 0.png to 5.png
@@ -105,27 +108,54 @@ for frame_number in range(twerk_frame_count):
 
     background.save(f"sussified_{frame_number}.png")
 
-print("Converting sussy frames to sussy gif")
-# Convert sussied frames to gif. PIL has a built-in method to save gifs but
-# it has dithering which looks sus, so we use ffmpeg with dither=none
-subprocess.call(
-    [
-        "ffmpeg",
-        "-f",
-        "image2",
-        "-i",
-        "sussified_%d.png",
-        "-filter_complex",
-        "[0:v] scale=sws_dither=none:,split [a][b];[a] palettegen=max_colors=255:stats_mode=single [p];[b][p] paletteuse=dither=none",
-        "-r",
-        "20",
-        "-y",
-        "-hide_banner",
-        "-loglevel",
-        "error",
-        "sussified.gif",
-    ]
-)
+print("Converting sussy frames to sussy output")
+
+if format_gif:
+    # Convert sussied frames to gif. PIL has a built-in method to save gifs but
+    # it has dithering which looks sus, so we use ffmpeg with dither=none
+    subprocess.call(
+        [
+            "ffmpeg",
+            "-f",
+            "image2",
+            "-i",
+            "sussified_%d.png",
+            "-filter_complex",
+            "[0:v] scale=sws_dither=none:,split [a][b];[a] palettegen=max_colors=255:stats_mode=single [p];[b][p] paletteuse=dither=none",
+            "-r",
+            "20",
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "sussified.gif",
+        ]
+    )
+else:
+    # MP4
+    subprocess.call(
+        [
+            "ffmpeg",
+            "-f",
+            "image2",
+            "-i",
+            "sussified_%d.png",
+            "-r",
+            "20",
+            "-movflags",
+            "faststart",
+            "-pix_fmt",
+            "yuv420p",
+            "-vf",
+            R"scale=min(1920\, iw):-2",
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "sussified.mp4",
+        ]
+    )
+
 
 # Remove temp files
 print("Ejecting temp files from folder")
