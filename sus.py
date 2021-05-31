@@ -43,12 +43,9 @@ twerk_frames = []
 twerk_frames_data = []  # Image as numpy array, pre-calculated for performance
 for i in range(6):
     try:
-        img = Image.open(f"twerk_imgs/{i}.png").convert("RGBA")
+        img = Image.open(f"frames/{i}.png").convert("RGBA")
     except Exception as e:
-        print(f"Error loading twerk frames! Filename = {i}.png")
-        print(
-            "Probably you renamed the twerk_imgs folder or forgot to set twerk_frame_count. baka"
-        )
+        print(f"Error loading frames! Filename = {i}.png")
         print(e)
         sys.exit(1)
     twerk_frames.append(img)
