@@ -25,16 +25,17 @@ import numpy as np
 import subprocess
 import os
 import sys
+import argparse
 
-if len(sys.argv) != 3 and len(sys.argv) != 4:
-    print(len(sys.argv))
-    print("./img_sussifier INPUT WIDTH [video]")
-    sys.exit(1)
+parser = argparse.ArgumentParser()
+parser.add_argument("input")
+parser.add_argument("-w", "--width", required=True, type=int)
+parser.add_argument("-v", "--video", action="store_true")
+parser.add_argument("--nearest", action="store_true")
+args = parser.parse_args()
 
-# Either GIF or MP4 output
-format_gif = not (len(sys.argv) == 4 and sys.argv[3] == "video")
 
-output_width = int(sys.argv[2])  # Width of output gif, measured in sussy crewmates
+output_width = args.width  # Width of output gif, measured in sussy crewmates
 twerk_frame_count = 6  # 0.png to 5.png
 
 # Load twerk frames 🥵
@@ -57,7 +58,7 @@ for i in range(6):
 twerk_width, twerk_height = twerk_frames[0].size
 
 # Get image to sussify!
-input_image = Image.open(sys.argv[1]).convert("RGB")
+input_image = Image.open(args.input).convert("RGB")
 input_width, input_height = input_image.size
 
 # Height of output gif (in crewmates)
@@ -69,7 +70,16 @@ output_height = int(
 output_px = (int(output_width * twerk_width), int(output_height * twerk_height))
 
 # Scale image to number of crewmates, so each crewmate gets one color
-input_image_scaled = input_image.resize((output_width, output_height))
+# Nearest neighbor scaling is used to keep the colors of "vector art" style images
+# (like a flag) correct. Regular scaling (bi-cubic) is better for non-vector images as it
+# can reduce noise.
+if args.nearest:
+    input_image_scaled = input_image.resize(
+        (output_width, output_height), Image.NEAREST
+    )
+else:
+    input_image_scaled = input_image.resize((output_width, output_height))
+
 
 for frame_number in range(twerk_frame_count):
     print("Sussying frame #", frame_number)
@@ -109,7 +119,7 @@ for frame_number in range(twerk_frame_count):
 
 print("Converting sussy frames to sussy output")
 
-if format_gif:
+if not args.video:
     # Convert sussied frames to gif. PIL has a built-in method to save gifs but
     # it has dithering which looks sus, so we use ffmpeg with dither=none
     subprocess.call(
