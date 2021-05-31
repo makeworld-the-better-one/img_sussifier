@@ -7,7 +7,7 @@ Examples
 ![jonathon](https://user-images.githubusercontent.com/60029482/119795170-21887c80-bed0-11eb-909a-ccbc007e8545.gif)
 
 ## How to use
-- Install Python >= 3.7
+- Install Python >= 3.7 and ffmpeg
 - Install [Poetry](https://python-poetry.org/)
 - Clone and run `poetry install`
 - Then run `./img_sussifier`
