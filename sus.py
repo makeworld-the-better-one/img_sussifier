@@ -65,22 +65,21 @@ output_height = int(
     output_width * (input_height / input_width) * (twerk_width / twerk_height)
 )
 
+# Width, height of output in pixels
+output_px = (int(output_width * twerk_width), int(output_height * twerk_height))
+
+# Scale image to number of crewmates, so each crewmate gets one color
+input_image_scaled = input_image.resize((output_width, output_height))
+
 for frame_number in range(twerk_frame_count):
     print("Sussying frame #", frame_number)
 
     # Create blank canvas
-    background = Image.new(
-        mode="RGBA", size=(output_width * twerk_width, output_height * twerk_height)
-    )
+    background = Image.new(mode="RGBA", size=output_px)
     for y in range(output_height):
         for x in range(output_width):
-            # Get rgb values from input image (basically nearest neighbour interpolation)
-            r, g, b = input_image.getpixel(
-                (
-                    int(x / output_width * input_width),
-                    int(y / output_height * input_height),
-                )
-            )
+
+            r, g, b = input_image_scaled.getpixel((x, y))
 
             # Grab that twerk data we calculated earlier
             # (x - y + frame_number) is the animation frame index,
