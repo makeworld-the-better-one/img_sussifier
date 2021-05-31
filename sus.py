@@ -153,7 +153,8 @@ else:
             "-pix_fmt",
             "yuv420p",
             "-vf",
-            R"scale=min(1920\, iw):-2",
+            # Limit size to 1920x1080 (1080p) at most
+            R"scale=iw*min(1920/iw\,1080/ih):ih*min(1920/iw\,1080/ih)",
             "-y",
             "-hide_banner",
             "-loglevel",
